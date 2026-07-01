@@ -18,6 +18,8 @@ Balance changes are logged in a separate `Transactions` sheet. The app creates i
 id | person_id | person_name | adjustment | balance_after | note | created_at
 ```
 
+Every balance change also creates a timestamped backup sheet named `Backup_...`. The app keeps the five newest backup sheets and deletes older backup sheets automatically.
+
 ## Google setup
 
 Google Cloud project:

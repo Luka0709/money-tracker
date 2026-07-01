@@ -1,5 +1,6 @@
 const HEADERS = ["id", "name", "balance", "updated_at"];
 const TRANSACTION_HEADERS = ["id", "person_id", "person_name", "adjustment", "balance_after", "note", "created_at"];
+const BACKUP_PREFIX = "Backup_";
 
 export { HEADERS, TRANSACTION_HEADERS };
 
@@ -63,6 +64,65 @@ export async function ensureTransactionsSheet(env) {
 
 export function transactionsSheetName(env) {
   return env.TRANSACTIONS_SHEET_NAME || "Transactions";
+}
+
+export async function createBackup(env, backedUpAt = new Date().toISOString()) {
+  const title = `${backupSheetTitle(backedUpAt)}_${crypto.randomUUID().slice(0, 8)}`;
+  const peopleRows = await getRows(env, "A:D");
+  const transactionRows = await getTransactionRows(env);
+  const backupRows = [
+    ["Backed up at", backedUpAt],
+    [],
+    ["People"],
+    ...(peopleRows.length ? peopleRows : [HEADERS]),
+    [],
+    ["Transactions"],
+    ...(transactionRows.length ? transactionRows : [TRANSACTION_HEADERS]),
+  ];
+
+  await sheetsRequest(
+    env,
+    "POST",
+    `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}:batchUpdate`,
+    { requests: [{ addSheet: { properties: { title } } }] },
+  );
+  await updateRange(env, `A1:G${backupRows.length}`, backupRows, title);
+  await pruneBackups(env);
+}
+
+async function getTransactionRows(env) {
+  try {
+    return await getRows(env, "A:G", transactionsSheetName(env));
+  } catch (error) {
+    if (String(error.message || "").includes("Unable to parse range")) return [TRANSACTION_HEADERS];
+    throw error;
+  }
+}
+
+async function pruneBackups(env) {
+  const spreadsheet = await sheetsRequest(
+    env,
+    "GET",
+    `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}?fields=sheets.properties(sheetId,title)`,
+  );
+  const backups = (spreadsheet.sheets || [])
+    .map((sheet) => sheet.properties)
+    .filter((sheet) => sheet.title.startsWith(BACKUP_PREFIX))
+    .sort((a, b) => a.title.localeCompare(b.title));
+  const oldBackups = backups.slice(0, Math.max(0, backups.length - 5));
+
+  if (!oldBackups.length) return;
+
+  await sheetsRequest(
+    env,
+    "POST",
+    `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}:batchUpdate`,
+    { requests: oldBackups.map((sheet) => ({ deleteSheet: { sheetId: sheet.sheetId } })) },
+  );
+}
+
+function backupSheetTitle(value) {
+  return `${BACKUP_PREFIX}${value.replace(/\.\d{3}Z$/, "Z").replace(/[:.]/g, "-")}`;
 }
 
 function valuesUrl(env, rangeName, tabName = sheetName(env)) {

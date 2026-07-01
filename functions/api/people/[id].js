@@ -1,5 +1,6 @@
 import {
   appendRow,
+  createBackup,
   ensureTransactionsSheet,
   getRows,
   hasHeader,
@@ -65,6 +66,7 @@ export async function onRequestPatch(context) {
       transactionsSheetName(env),
       "A:G",
     );
+    await createBackup(env, now);
 
     return json({ ...updated, transactions: await recentTransactions(env, updated.id) });
   } catch (error) {
