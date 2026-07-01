@@ -1,0 +1,7 @@
+node_modules/
+.wrangler/
+.dev.vars
+*.local
+service-account*.json
+google-key*.json
+money-tracker-*.json

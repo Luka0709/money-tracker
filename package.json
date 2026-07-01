@@ -1,0 +1,13 @@
+{
+  "name": "money-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A simple mobile-first balance tracker backed by Google Sheets and Cloudflare Pages Functions.",
+  "scripts": {
+    "dev": "wrangler pages dev .",
+    "deploy": "wrangler pages deploy ."
+  },
+  "devDependencies": {
+    "wrangler": "^4.23.0"
+  }
+}

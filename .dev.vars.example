@@ -1,0 +1,4 @@
+SHEET_ID=1ifguBUGzKmw2ezoUahTX7ReASJasV28OLqptVuf2nI4
+SHEET_NAME=Sheet1
+GOOGLE_CLIENT_EMAIL=money-tracker-sheets@money-tracker-501107.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"

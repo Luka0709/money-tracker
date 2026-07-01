@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111827" />
+    <title>Money Tracker</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar" aria-label="Summary">
+        <div>
+          <p class="eyebrow">Money Tracker</p>
+          <h1>Balances</h1>
+        </div>
+        <button class="icon-button" id="refreshButton" aria-label="Refresh balances" type="button">
+          <span aria-hidden="true">↻</span>
+        </button>
+      </section>
+
+      <section class="net-panel" aria-live="polite">
+        <span>Total net balance</span>
+        <strong id="totalBalance">€0.00</strong>
+      </section>
+
+      <section class="people-list" id="peopleList" aria-label="People"></section>
+
+      <section class="empty-state" id="emptyState" hidden>
+        <h2>No people yet</h2>
+        <p>Add someone to start tracking who owes what.</p>
+      </section>
+
+      <button class="add-button" id="addPersonButton" type="button">+ Add person</button>
+    </main>
+
+    <dialog class="sheet" id="personDialog">
+      <form method="dialog" class="sheet-content" id="personForm">
+        <button class="close-button" id="closeDialogButton" aria-label="Close" type="button">×</button>
+        <p class="eyebrow" id="dialogMode">Balance</p>
+        <h2 id="dialogTitle">New person</h2>
+
+        <label>
+          Name
+          <input id="nameInput" name="name" autocomplete="off" required />
+        </label>
+
+        <label>
+          Adjustment
+          <input
+            id="adjustmentInput"
+            name="adjustment"
+            inputmode="decimal"
+            placeholder="+25 or -10"
+            autocomplete="off"
+          />
+        </label>
+
+        <p class="hint">Use + when they owe you. Use - when you owe them.</p>
+
+        <div class="current-balance">
+          <span>Current balance</span>
+          <strong id="currentBalance">€0.00</strong>
+        </div>
+
+        <button class="primary-button" id="saveButton" value="default" type="submit">Save</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
