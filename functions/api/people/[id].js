@@ -34,6 +34,7 @@ export async function onRequestPatch(context) {
     const body = await request.json();
     const adjustment = Number(body.adjustment);
     const note = String(body.note || "").trim();
+    const excluded = Boolean(body.excluded);
 
     if (!Number.isFinite(adjustment)) {
       return json({ error: "Adjustment must be a number." }, 400);
@@ -49,10 +50,11 @@ export async function onRequestPatch(context) {
 
     const row = rows[rowIndex];
     const now = new Date().toISOString();
+    const currentBalance = Number(row[2] || 0);
     const updated = {
       id: row[0],
       name: row[1],
-      balance: Number(row[2] || 0) + adjustment,
+      balance: excluded ? currentBalance : currentBalance + adjustment,
       updated_at: now,
     };
 
@@ -62,9 +64,9 @@ export async function onRequestPatch(context) {
     await ensureTransactionsSheet(env);
     await appendRow(
       env,
-      [crypto.randomUUID(), updated.id, updated.name, adjustment, updated.balance, note, now],
+      [crypto.randomUUID(), updated.id, updated.name, adjustment, updated.balance, note, excluded ? "yes" : "", now],
       transactionsSheetName(env),
-      "A:G",
+      "A:H",
     );
     await createBackup(env, now);
 
@@ -76,7 +78,7 @@ export async function onRequestPatch(context) {
 
 async function recentTransactions(env, personId) {
   try {
-    const rows = await getRows(env, "A:G", transactionsSheetName(env));
+    const rows = await getRows(env, "A:H", transactionsSheetName(env));
     return rows
       .slice(1)
       .filter((row) => row[1] === personId)
@@ -90,12 +92,14 @@ async function recentTransactions(env, personId) {
 }
 
 function rowToTransaction(row) {
+  const hasExcludedColumn = row.length >= 8;
   const hasNoteColumn = row.length >= 7;
   return {
     id: row[0],
     adjustment: Number(row[3] || 0),
     balance_after: Number(row[4] || 0),
     note: hasNoteColumn ? row[5] || "" : "",
-    created_at: hasNoteColumn ? row[6] || "" : row[5] || "",
+    excluded: hasExcludedColumn ? row[6] === "yes" : false,
+    created_at: hasExcludedColumn ? row[7] || "" : hasNoteColumn ? row[6] || "" : row[5] || "",
   };
 }

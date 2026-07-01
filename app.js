@@ -19,6 +19,7 @@ const personAdjustmentInput = document.querySelector("#personAdjustmentInput");
 const transactionNoteInput = document.querySelector("#transactionNoteInput");
 const saveAdjustmentButton = document.querySelector("#saveAdjustmentButton");
 const signButtons = document.querySelectorAll("[data-sign]");
+const excludeTransactionButton = document.querySelector("#excludeTransactionButton");
 const toast = document.querySelector("#toast");
 
 const currency = new Intl.NumberFormat(undefined, {
@@ -29,6 +30,7 @@ const currency = new Intl.NumberFormat(undefined, {
 let people = [];
 let activePerson = null;
 let selectedSign = "+";
+let excludeTransaction = false;
 
 function personIdFromUrl() {
   return new URLSearchParams(window.location.search).get("person");
@@ -123,11 +125,16 @@ function renderTransactions(transactions) {
     note.className = "history-note";
     note.textContent = transaction.note || "No note";
 
+    const badge = document.createElement("span");
+    badge.className = "history-badge";
+    badge.textContent = "Not counted";
+    badge.hidden = !transaction.excluded;
+
     const date = document.createElement("span");
     date.className = "history-date";
     date.textContent = transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "No time recorded";
 
-    row.append(amount, note, date);
+    row.append(amount, note, badge, date);
     transactionHistory.append(row);
   }
 }
@@ -144,6 +151,12 @@ function setSelectedSign(sign) {
     button.classList.toggle("selected", button.dataset.sign === sign);
     button.setAttribute("aria-pressed", String(button.dataset.sign === sign));
   });
+}
+
+function setExcludeTransaction(value) {
+  excludeTransaction = value;
+  excludeTransactionButton.classList.toggle("selected", value);
+  excludeTransactionButton.setAttribute("aria-pressed", String(value));
 }
 
 async function request(path, options = {}) {
@@ -231,13 +244,14 @@ adjustmentForm.addEventListener("submit", async (event) => {
     saveAdjustmentButton.disabled = true;
     const updated = await request(`/api/people/${encodeURIComponent(activePerson.id)}`, {
       method: "PATCH",
-      body: JSON.stringify({ adjustment, note: transactionNoteInput.value.trim() }),
+      body: JSON.stringify({ adjustment, note: transactionNoteInput.value.trim(), excluded: excludeTransaction }),
     });
 
     renderPerson(updated);
     personAdjustmentInput.value = "";
     transactionNoteInput.value = "";
     setSelectedSign("+");
+    setExcludeTransaction(false);
     showToast("Balance updated.");
   } catch (error) {
     showToast(error.message);
@@ -255,8 +269,13 @@ signButtons.forEach((button) => {
     personAdjustmentInput.focus();
   });
 });
+excludeTransactionButton.addEventListener("click", () => {
+  setExcludeTransaction(!excludeTransaction);
+  personAdjustmentInput.focus();
+});
 
 setSelectedSign("+");
+setExcludeTransaction(false);
 
 const initialPersonId = personIdFromUrl();
 if (initialPersonId) {

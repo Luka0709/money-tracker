@@ -1,5 +1,5 @@
 const HEADERS = ["id", "name", "balance", "updated_at"];
-const TRANSACTION_HEADERS = ["id", "person_id", "person_name", "adjustment", "balance_after", "note", "created_at"];
+const TRANSACTION_HEADERS = ["id", "person_id", "person_name", "adjustment", "balance_after", "note", "excluded", "created_at"];
 const BACKUP_PREFIX = "Backup_";
 
 export { HEADERS, TRANSACTION_HEADERS };
@@ -44,9 +44,9 @@ export async function ensureTransactionsSheet(env) {
   const tabName = transactionsSheetName(env);
 
   try {
-    const rows = await getRows(env, "A:G", tabName);
-    if (rows[0]?.slice(0, 7).join("|").toLowerCase() !== TRANSACTION_HEADERS.join("|")) {
-      await updateRange(env, "A1:G1", [TRANSACTION_HEADERS], tabName);
+    const rows = await getRows(env, "A:H", tabName);
+    if (rows[0]?.slice(0, 8).join("|").toLowerCase() !== TRANSACTION_HEADERS.join("|")) {
+      await updateRange(env, "A1:H1", [TRANSACTION_HEADERS], tabName);
     }
     return;
   } catch (error) {
@@ -59,7 +59,7 @@ export async function ensureTransactionsSheet(env) {
     `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}:batchUpdate`,
     { requests: [{ addSheet: { properties: { title: tabName } } }] },
   );
-  await updateRange(env, "A1:G1", [TRANSACTION_HEADERS], tabName);
+  await updateRange(env, "A1:H1", [TRANSACTION_HEADERS], tabName);
 }
 
 export function transactionsSheetName(env) {
@@ -86,13 +86,13 @@ export async function createBackup(env, backedUpAt = new Date().toISOString()) {
     `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}:batchUpdate`,
     { requests: [{ addSheet: { properties: { title } } }] },
   );
-  await updateRange(env, `A1:G${backupRows.length}`, backupRows, title);
+  await updateRange(env, `A1:H${backupRows.length}`, backupRows, title);
   await pruneBackups(env);
 }
 
 async function getTransactionRows(env) {
   try {
-    return await getRows(env, "A:G", transactionsSheetName(env));
+    return await getRows(env, "A:H", transactionsSheetName(env));
   } catch (error) {
     if (String(error.message || "").includes("Unable to parse range")) return [TRANSACTION_HEADERS];
     throw error;

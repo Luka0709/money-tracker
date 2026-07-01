@@ -251,12 +251,13 @@ input:focus {
 
 .amount-entry {
   display: grid;
-  grid-template-columns: 58px 58px 1fr;
+  grid-template-columns: 58px 58px 58px 1fr;
   gap: 8px;
   width: 100%;
 }
 
-.sign-button {
+.sign-button,
+.exclude-button {
   min-height: 50px;
   border: 1px solid #c9d2d9;
   border-radius: 8px;
@@ -266,7 +267,8 @@ input:focus {
   font-weight: 900;
 }
 
-.sign-button.selected {
+.sign-button.selected,
+.exclude-button.selected {
   border-color: #111827;
   background: #111827;
   color: #ffffff;
@@ -280,6 +282,11 @@ input:focus {
 .negative-sign.selected {
   border-color: #b42318;
   background: #b42318;
+}
+
+.exclude-button.selected {
+  border-color: #7c3aed;
+  background: #7c3aed;
 }
 
 .current-balance {
@@ -345,6 +352,16 @@ input:focus {
 .history-empty {
   color: #66707a;
   font-size: 0.78rem;
+}
+
+.history-badge {
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #ede9fe;
+  color: #5b21b6;
+  font-size: 0.72rem;
+  font-weight: 900;
 }
 
 .history-empty {
