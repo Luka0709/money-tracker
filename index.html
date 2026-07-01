@@ -53,16 +53,20 @@
         <form class="adjustment-card" id="adjustmentForm">
           <label>
             Adjustment
-            <input
-              id="personAdjustmentInput"
-              name="adjustment"
-              inputmode="decimal"
-              placeholder="+25 or -10"
-              autocomplete="off"
-              required
-            />
+            <span class="amount-entry">
+              <button class="sign-button positive-sign" type="button" data-sign="+">+</button>
+              <button class="sign-button negative-sign" type="button" data-sign="-">-</button>
+              <input
+                id="personAdjustmentInput"
+                name="adjustment"
+                inputmode="decimal"
+                placeholder="25"
+                autocomplete="off"
+                required
+              />
+            </span>
           </label>
-          <p class="hint">Use + when they owe you. Use - when you owe them.</p>
+          <p class="hint" id="signHint">Tap + when they owe you. Tap - when you owe them.</p>
           <button class="primary-button" id="saveAdjustmentButton" type="submit">Save adjustment</button>
         </form>
       </section>

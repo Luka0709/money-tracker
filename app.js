@@ -15,6 +15,7 @@ const personBalance = document.querySelector("#personBalance");
 const adjustmentForm = document.querySelector("#adjustmentForm");
 const personAdjustmentInput = document.querySelector("#personAdjustmentInput");
 const saveAdjustmentButton = document.querySelector("#saveAdjustmentButton");
+const signButtons = document.querySelectorAll("[data-sign]");
 const toast = document.querySelector("#toast");
 
 const currency = new Intl.NumberFormat(undefined, {
@@ -24,6 +25,7 @@ const currency = new Intl.NumberFormat(undefined, {
 
 let people = [];
 let activePerson = null;
+let selectedSign = "+";
 
 function personIdFromUrl() {
   return new URLSearchParams(window.location.search).get("person");
@@ -101,6 +103,14 @@ function renderPerson(person) {
   personBalance.className = balanceClass(person.balance);
 }
 
+function setSelectedSign(sign) {
+  selectedSign = sign;
+  signButtons.forEach((button) => {
+    button.classList.toggle("selected", button.dataset.sign === sign);
+    button.setAttribute("aria-pressed", String(button.dataset.sign === sign));
+  });
+}
+
 async function request(path, options = {}) {
   const response = await fetch(path, {
     headers: { "Content-Type": "application/json" },
@@ -146,10 +156,14 @@ function openNewPerson() {
 
 function parseAdjustment(value) {
   const clean = value.trim().replace(",", ".");
-  if (!/^[+-]\d+(\.\d{1,2})?$/.test(clean)) {
-    throw new Error("Enter an amount like +25 or -10.");
+  const sign = /^[+-]/.test(clean) ? clean[0] : selectedSign;
+  const amount = clean.replace(/^[+-]/, "");
+
+  if (!/^\d+(\.\d{1,2})?$/.test(amount)) {
+    throw new Error("Enter an amount like 25, then tap + or -.");
   }
-  return Number(clean);
+
+  return Number(`${sign}${amount}`);
 }
 
 personForm.addEventListener("submit", async (event) => {
@@ -187,6 +201,7 @@ adjustmentForm.addEventListener("submit", async (event) => {
 
     renderPerson(updated);
     personAdjustmentInput.value = "";
+    setSelectedSign("+");
     showToast("Balance updated.");
   } catch (error) {
     showToast(error.message);
@@ -198,6 +213,14 @@ adjustmentForm.addEventListener("submit", async (event) => {
 addPersonButton.addEventListener("click", openNewPerson);
 refreshButton.addEventListener("click", loadPeople);
 closeDialogButton.addEventListener("click", () => personDialog.close());
+signButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setSelectedSign(button.dataset.sign);
+    personAdjustmentInput.focus();
+  });
+});
+
+setSelectedSign("+");
 
 const initialPersonId = personIdFromUrl();
 if (initialPersonId) {

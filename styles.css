@@ -249,6 +249,39 @@ input:focus {
   font-size: 0.84rem;
 }
 
+.amount-entry {
+  display: grid;
+  grid-template-columns: 58px 58px 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.sign-button {
+  min-height: 50px;
+  border: 1px solid #c9d2d9;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #253238;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.sign-button.selected {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
+.positive-sign.selected {
+  border-color: #12805c;
+  background: #12805c;
+}
+
+.negative-sign.selected {
+  border-color: #b42318;
+  background: #b42318;
+}
+
 .current-balance {
   display: flex;
   align-items: center;
