@@ -20,7 +20,8 @@ export async function onRequestGet(context) {
     const row = rows.find((item, index) => index > 0 && item[0] === params.id);
     if (!row) return json({ error: "Person not found." }, 404);
 
-    return json(rowToPerson(row));
+    const person = rowToPerson(row);
+    return json({ ...person, transactions: await recentTransactions(env, person.id) });
   } catch (error) {
     return json({ error: error.message || "Unexpected error." }, 500);
   }
@@ -65,8 +66,34 @@ export async function onRequestPatch(context) {
       "A:G",
     );
 
-    return json(updated);
+    return json({ ...updated, transactions: await recentTransactions(env, updated.id) });
   } catch (error) {
     return json({ error: error.message || "Unexpected error." }, 500);
   }
+}
+
+async function recentTransactions(env, personId) {
+  try {
+    const rows = await getRows(env, "A:G", transactionsSheetName(env));
+    return rows
+      .slice(1)
+      .filter((row) => row[1] === personId)
+      .map(rowToTransaction)
+      .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
+      .slice(0, 3);
+  } catch (error) {
+    if (String(error.message || "").includes("Unable to parse range")) return [];
+    throw error;
+  }
+}
+
+function rowToTransaction(row) {
+  const hasNoteColumn = row.length >= 7;
+  return {
+    id: row[0],
+    adjustment: Number(row[3] || 0),
+    balance_after: Number(row[4] || 0),
+    note: hasNoteColumn ? row[5] || "" : "",
+    created_at: hasNoteColumn ? row[6] || "" : row[5] || "",
+  };
 }

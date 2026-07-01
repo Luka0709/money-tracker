@@ -312,6 +312,45 @@ input:focus {
   font-size: 2.1rem;
 }
 
+.history-panel {
+  margin-top: 18px;
+}
+
+.history-panel h2 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.history-row {
+  display: grid;
+  gap: 3px;
+  padding: 13px 14px;
+  border: 1px solid rgba(37, 50, 56, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(29, 42, 37, 0.05);
+}
+
+.history-note {
+  color: #253238;
+  font-weight: 800;
+}
+
+.history-date,
+.history-empty {
+  color: #66707a;
+  font-size: 0.78rem;
+}
+
+.history-empty {
+  margin-bottom: 0;
+}
+
 .detail-mode .add-button {
   display: none;
 }

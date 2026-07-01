@@ -12,6 +12,8 @@ const nameInput = document.querySelector("#nameInput");
 const saveButton = document.querySelector("#saveButton");
 const personTitle = document.querySelector("#personTitle");
 const personBalance = document.querySelector("#personBalance");
+const transactionHistory = document.querySelector("#transactionHistory");
+const transactionHistoryEmpty = document.querySelector("#transactionHistoryEmpty");
 const adjustmentForm = document.querySelector("#adjustmentForm");
 const personAdjustmentInput = document.querySelector("#personAdjustmentInput");
 const transactionNoteInput = document.querySelector("#transactionNoteInput");
@@ -102,6 +104,38 @@ function renderPerson(person) {
   personTitle.textContent = person.name;
   personBalance.textContent = formatMoney(person.balance);
   personBalance.className = balanceClass(person.balance);
+  renderTransactions(person.transactions || []);
+}
+
+function renderTransactions(transactions) {
+  transactionHistory.replaceChildren();
+  transactionHistoryEmpty.hidden = transactions.length > 0;
+
+  for (const transaction of transactions) {
+    const row = document.createElement("article");
+    row.className = "history-row";
+
+    const amount = document.createElement("strong");
+    amount.className = balanceClass(transaction.adjustment);
+    amount.textContent = formatSignedMoney(transaction.adjustment);
+
+    const note = document.createElement("span");
+    note.className = "history-note";
+    note.textContent = transaction.note || "No note";
+
+    const date = document.createElement("span");
+    date.className = "history-date";
+    date.textContent = transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "No time recorded";
+
+    row.append(amount, note, date);
+    transactionHistory.append(row);
+  }
+}
+
+function formatSignedMoney(value) {
+  const number = Number(value) || 0;
+  const sign = number > 0 ? "+" : "";
+  return `${sign}${formatMoney(number)}`;
 }
 
 function setSelectedSign(sign) {
