@@ -15,7 +15,7 @@ The app can create the header row automatically after the Google connection work
 Balance changes are logged in a separate `Transactions` sheet. The app creates it automatically with this header row:
 
 ```text
-id | person_id | person_name | adjustment | balance_after | created_at
+id | person_id | person_name | adjustment | balance_after | note | created_at
 ```
 
 ## Google setup

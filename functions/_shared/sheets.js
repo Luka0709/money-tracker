@@ -1,5 +1,5 @@
 const HEADERS = ["id", "name", "balance", "updated_at"];
-const TRANSACTION_HEADERS = ["id", "person_id", "person_name", "adjustment", "balance_after", "created_at"];
+const TRANSACTION_HEADERS = ["id", "person_id", "person_name", "adjustment", "balance_after", "note", "created_at"];
 
 export { HEADERS, TRANSACTION_HEADERS };
 
@@ -43,9 +43,9 @@ export async function ensureTransactionsSheet(env) {
   const tabName = transactionsSheetName(env);
 
   try {
-    const rows = await getRows(env, "A:F", tabName);
-    if (rows[0]?.slice(0, 6).join("|").toLowerCase() !== TRANSACTION_HEADERS.join("|")) {
-      await updateRange(env, "A1:F1", [TRANSACTION_HEADERS], tabName);
+    const rows = await getRows(env, "A:G", tabName);
+    if (rows[0]?.slice(0, 7).join("|").toLowerCase() !== TRANSACTION_HEADERS.join("|")) {
+      await updateRange(env, "A1:G1", [TRANSACTION_HEADERS], tabName);
     }
     return;
   } catch (error) {
@@ -58,7 +58,7 @@ export async function ensureTransactionsSheet(env) {
     `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}:batchUpdate`,
     { requests: [{ addSheet: { properties: { title: tabName } } }] },
   );
-  await updateRange(env, "A1:F1", [TRANSACTION_HEADERS], tabName);
+  await updateRange(env, "A1:G1", [TRANSACTION_HEADERS], tabName);
 }
 
 export function transactionsSheetName(env) {

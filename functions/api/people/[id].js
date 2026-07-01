@@ -31,6 +31,7 @@ export async function onRequestPatch(context) {
     const { request, env, params } = context;
     const body = await request.json();
     const adjustment = Number(body.adjustment);
+    const note = String(body.note || "").trim();
 
     if (!Number.isFinite(adjustment)) {
       return json({ error: "Adjustment must be a number." }, 400);
@@ -59,9 +60,9 @@ export async function onRequestPatch(context) {
     await ensureTransactionsSheet(env);
     await appendRow(
       env,
-      [crypto.randomUUID(), updated.id, updated.name, adjustment, updated.balance, now],
+      [crypto.randomUUID(), updated.id, updated.name, adjustment, updated.balance, note, now],
       transactionsSheetName(env),
-      "A:F",
+      "A:G",
     );
 
     return json(updated);

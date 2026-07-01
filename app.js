@@ -14,6 +14,7 @@ const personTitle = document.querySelector("#personTitle");
 const personBalance = document.querySelector("#personBalance");
 const adjustmentForm = document.querySelector("#adjustmentForm");
 const personAdjustmentInput = document.querySelector("#personAdjustmentInput");
+const transactionNoteInput = document.querySelector("#transactionNoteInput");
 const saveAdjustmentButton = document.querySelector("#saveAdjustmentButton");
 const signButtons = document.querySelectorAll("[data-sign]");
 const toast = document.querySelector("#toast");
@@ -196,11 +197,12 @@ adjustmentForm.addEventListener("submit", async (event) => {
     saveAdjustmentButton.disabled = true;
     const updated = await request(`/api/people/${encodeURIComponent(activePerson.id)}`, {
       method: "PATCH",
-      body: JSON.stringify({ adjustment }),
+      body: JSON.stringify({ adjustment, note: transactionNoteInput.value.trim() }),
     });
 
     renderPerson(updated);
     personAdjustmentInput.value = "";
+    transactionNoteInput.value = "";
     setSelectedSign("+");
     showToast("Balance updated.");
   } catch (error) {
