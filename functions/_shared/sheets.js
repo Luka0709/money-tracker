@@ -1,20 +1,21 @@
 const HEADERS = ["id", "name", "balance", "updated_at"];
+const TRANSACTION_HEADERS = ["id", "person_id", "person_name", "adjustment", "balance_after", "created_at"];
 
-export { HEADERS };
+export { HEADERS, TRANSACTION_HEADERS };
 
-export async function getRows(env, rangeName = "A:D") {
-  const data = await sheetsRequest(env, "GET", valuesUrl(env, rangeName));
+export async function getRows(env, rangeName = "A:D", tabName = sheetName(env)) {
+  const data = await sheetsRequest(env, "GET", valuesUrl(env, rangeName, tabName));
   return data.values || [];
 }
 
-export async function appendRow(env, row) {
-  const range = encodeURIComponent(`${sheetName(env)}!A:D`);
+export async function appendRow(env, row, tabName = sheetName(env), columns = "A:D") {
+  const range = encodeURIComponent(`${tabName}!${columns}`);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   await sheetsRequest(env, "POST", url, { values: [row] });
 }
 
-export async function updateRange(env, rangeName, values) {
-  const url = valuesUrl(env, rangeName) + "?valueInputOption=USER_ENTERED";
+export async function updateRange(env, rangeName, values, tabName = sheetName(env)) {
+  const url = valuesUrl(env, rangeName, tabName) + "?valueInputOption=USER_ENTERED";
   await sheetsRequest(env, "PUT", url, { values });
 }
 
@@ -38,8 +39,34 @@ export function json(data, status = 200) {
   });
 }
 
-function valuesUrl(env, rangeName) {
-  const range = encodeURIComponent(`${sheetName(env)}!${rangeName}`);
+export async function ensureTransactionsSheet(env) {
+  const tabName = transactionsSheetName(env);
+
+  try {
+    const rows = await getRows(env, "A:F", tabName);
+    if (rows[0]?.slice(0, 6).join("|").toLowerCase() !== TRANSACTION_HEADERS.join("|")) {
+      await updateRange(env, "A1:F1", [TRANSACTION_HEADERS], tabName);
+    }
+    return;
+  } catch (error) {
+    if (!String(error.message || "").includes("Unable to parse range")) throw error;
+  }
+
+  await sheetsRequest(
+    env,
+    "POST",
+    `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}:batchUpdate`,
+    { requests: [{ addSheet: { properties: { title: tabName } } }] },
+  );
+  await updateRange(env, "A1:F1", [TRANSACTION_HEADERS], tabName);
+}
+
+export function transactionsSheetName(env) {
+  return env.TRANSACTIONS_SHEET_NAME || "Transactions";
+}
+
+function valuesUrl(env, rangeName, tabName = sheetName(env)) {
+  const range = encodeURIComponent(`${tabName}!${rangeName}`);
   return `https://sheets.googleapis.com/v4/spreadsheets/${env.SHEET_ID}/values/${range}`;
 }
 

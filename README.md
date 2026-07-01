@@ -12,6 +12,12 @@ id | name | balance | updated_at
 
 The app can create the header row automatically after the Google connection works, but adding it yourself makes setup easier to verify.
 
+Balance changes are logged in a separate `Transactions` sheet. The app creates it automatically with this header row:
+
+```text
+id | person_id | person_name | adjustment | balance_after | created_at
+```
+
 ## Google setup
 
 Google Cloud project:

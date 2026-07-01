@@ -10,61 +10,76 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="topbar" aria-label="Summary">
-        <div>
-          <p class="eyebrow">Money Tracker</p>
-          <h1>Balances</h1>
-        </div>
-        <button class="icon-button" id="refreshButton" aria-label="Refresh balances" type="button">
-          <span aria-hidden="true">↻</span>
-        </button>
+      <section id="homeView">
+        <section class="topbar" aria-label="Summary">
+          <div>
+            <p class="eyebrow">Money Tracker</p>
+            <h1>Balances</h1>
+          </div>
+          <button class="icon-button" id="refreshButton" aria-label="Refresh balances" type="button">
+            <span aria-hidden="true">Refresh</span>
+          </button>
+        </section>
+
+        <section class="net-panel" aria-live="polite">
+          <span>Total net balance</span>
+          <strong id="totalBalance">EUR 0.00</strong>
+        </section>
+
+        <section class="people-list" id="peopleList" aria-label="People"></section>
+
+        <section class="empty-state" id="emptyState" hidden>
+          <h2>No people yet</h2>
+          <p>Add someone to start tracking who owes what.</p>
+        </section>
+
+        <button class="add-button" id="addPersonButton" type="button">+ Add person</button>
       </section>
 
-      <section class="net-panel" aria-live="polite">
-        <span>Total net balance</span>
-        <strong id="totalBalance">€0.00</strong>
+      <section id="personView" hidden>
+        <section class="topbar" aria-label="Person balance">
+          <div>
+            <p class="eyebrow">Person</p>
+            <h1 id="personTitle">Balance</h1>
+          </div>
+          <a class="icon-button" href="/" aria-label="Back to all balances">Back</a>
+        </section>
+
+        <section class="net-panel detail-balance" aria-live="polite">
+          <span>Current balance</span>
+          <strong id="personBalance">EUR 0.00</strong>
+        </section>
+
+        <form class="adjustment-card" id="adjustmentForm">
+          <label>
+            Adjustment
+            <input
+              id="personAdjustmentInput"
+              name="adjustment"
+              inputmode="decimal"
+              placeholder="+25 or -10"
+              autocomplete="off"
+              required
+            />
+          </label>
+          <p class="hint">Use + when they owe you. Use - when you owe them.</p>
+          <button class="primary-button" id="saveAdjustmentButton" type="submit">Save adjustment</button>
+        </form>
       </section>
-
-      <section class="people-list" id="peopleList" aria-label="People"></section>
-
-      <section class="empty-state" id="emptyState" hidden>
-        <h2>No people yet</h2>
-        <p>Add someone to start tracking who owes what.</p>
-      </section>
-
-      <button class="add-button" id="addPersonButton" type="button">+ Add person</button>
     </main>
 
     <dialog class="sheet" id="personDialog">
       <form method="dialog" class="sheet-content" id="personForm">
-        <button class="close-button" id="closeDialogButton" aria-label="Close" type="button">×</button>
-        <p class="eyebrow" id="dialogMode">Balance</p>
-        <h2 id="dialogTitle">New person</h2>
+        <button class="close-button" id="closeDialogButton" aria-label="Close" type="button">x</button>
+        <p class="eyebrow">New person</p>
+        <h2>Add person</h2>
 
         <label>
           Name
           <input id="nameInput" name="name" autocomplete="off" required />
         </label>
 
-        <label>
-          Adjustment
-          <input
-            id="adjustmentInput"
-            name="adjustment"
-            inputmode="decimal"
-            placeholder="+25 or -10"
-            autocomplete="off"
-          />
-        </label>
-
-        <p class="hint">Use + when they owe you. Use - when you owe them.</p>
-
-        <div class="current-balance">
-          <span>Current balance</span>
-          <strong id="currentBalance">€0.00</strong>
-        </div>
-
-        <button class="primary-button" id="saveButton" value="default" type="submit">Save</button>
+        <button class="primary-button" id="saveButton" value="default" type="submit">Add person</button>
       </form>
     </dialog>
 
