@@ -219,6 +219,7 @@ personForm.addEventListener("submit", async (event) => {
 
   try {
     saveButton.disabled = true;
+    saveButton.textContent = "Adding...";
     const created = await request("/api/people", {
       method: "POST",
       body: JSON.stringify({ name: nameInput.value.trim() }),
@@ -232,6 +233,7 @@ personForm.addEventListener("submit", async (event) => {
     showToast(error.message);
   } finally {
     saveButton.disabled = false;
+    saveButton.textContent = "Add person";
   }
 });
 
@@ -242,6 +244,7 @@ adjustmentForm.addEventListener("submit", async (event) => {
   try {
     const adjustment = parseAdjustment(personAdjustmentInput.value);
     saveAdjustmentButton.disabled = true;
+    saveAdjustmentButton.textContent = "Saving...";
     const updated = await request(`/api/people/${encodeURIComponent(activePerson.id)}`, {
       method: "PATCH",
       body: JSON.stringify({ adjustment, note: transactionNoteInput.value.trim(), excluded: excludeTransaction }),
@@ -257,6 +260,7 @@ adjustmentForm.addEventListener("submit", async (event) => {
     showToast(error.message);
   } finally {
     saveAdjustmentButton.disabled = false;
+    saveAdjustmentButton.textContent = "Save adjustment";
   }
 });
 

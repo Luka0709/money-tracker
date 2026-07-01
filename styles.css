@@ -251,9 +251,13 @@ input:focus {
 
 .amount-entry {
   display: grid;
-  grid-template-columns: 58px 58px 58px 1fr;
+  grid-template-columns: 52px 52px 52px minmax(0, 1fr);
   gap: 8px;
   width: 100%;
+}
+
+.amount-entry input {
+  min-width: 0;
 }
 
 .sign-button,

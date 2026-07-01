@@ -1,6 +1,7 @@
 const HEADERS = ["id", "name", "balance", "updated_at"];
 const TRANSACTION_HEADERS = ["id", "person_id", "person_name", "adjustment", "balance_after", "note", "excluded", "created_at"];
 const BACKUP_PREFIX = "Backup_";
+let accessTokenCache = null;
 
 export { HEADERS, TRANSACTION_HEADERS };
 
@@ -154,6 +155,14 @@ async function sheetsRequest(env, method, url, body) {
 
 async function getAccessToken(env) {
   const now = Math.floor(Date.now() / 1000);
+  if (
+    accessTokenCache &&
+    accessTokenCache.email === env.GOOGLE_CLIENT_EMAIL &&
+    accessTokenCache.expiresAt > now + 60
+  ) {
+    return accessTokenCache.token;
+  }
+
   const header = { alg: "RS256", typ: "JWT" };
   const claim = {
     iss: env.GOOGLE_CLIENT_EMAIL,
@@ -185,6 +194,11 @@ async function getAccessToken(env) {
 
   const data = await response.json();
   if (!response.ok) throw new Error(data.error_description || "Could not authenticate with Google.");
+  accessTokenCache = {
+    email: env.GOOGLE_CLIENT_EMAIL,
+    expiresAt: now + Number(data.expires_in || 3600),
+    token: data.access_token,
+  };
   return data.access_token;
 }
 
